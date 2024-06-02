@@ -1,41 +1,36 @@
 steps:
-# Step 1: Clone the GitHub repository
-- name: 'gcr.io/cloud-builders/git'
-  args: ['clone', 'https://github.com/viks1102/gke-deployments.git', '.']
-  id: 'Clone GitHub Repository'
-
-# Step 2: Get GKE credentials
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: ['container', 'clusters', 'get-credentials', '${_CLUSTER_NAME}', '--zone', '${_CLUSTER_ZONE}', '--project', '${_PROJECT_ID}']
+  args:
+    - 'container'
+    - 'clusters'
+    - 'get-credentials'
+    - '${_CLUSTER_NAME}'
+    - '--zone'
+    - '${_CLUSTER_ZONE}'
+    - '--project'
+    - '${_PROJECT_ID}'
   id: 'Get GKE Credentials'
 
-# Step 3: Check cluster info
-- name: 'gcr.io/cloud-builders/kubectl'
-  args: ['cluster-info']
-  id: 'Check Cluster Info'
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', 'https://github.com/viks1102/gke-deployments.git']
+  dir: '/workspace'
+  id: 'Clone Repo'
 
-# Step 4: Dry run deployment manifest
+# Apply deployment manifests
 - name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '--dry-run=client', '-f', 'prod/deployment.yaml']
-  id: 'Dry Run Deployment'
-  waitFor: ['Clone GitHub Repository', 'Get GKE Credentials']
-
-
-# Step 5: Apply deployment manifest
-- name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'prod/deployment.yaml']
-  id: 'Deploy Application'
-  waitFor: ['Dry Run Service']
+  args:
+    - 'apply'
+    - '-f'
+    - '/workspace/gke-deployments/prod/'
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=${_CLUSTER_ZONE}'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}'
+  id: 'Apply deployments'
 
 # Step 6: Get all pods
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['get', 'pods', '-o', 'wide']
   id: 'Get Pods'
-
-# Step 7: Get all services
-- name: 'gcr.io/cloud-builders/kubectl'
-  args: ['get', 'services', '-o', 'wide']
-  id: 'Get Services'
 
 options:
   logging: CLOUD_LOGGING_ONLY
