@@ -21,11 +21,11 @@ steps:
   args:
     - 'apply'
     - '-f'
-    - '/workspace/gke-deployments/nonprod/'
+    - '/workspace/gke-deployments/non-prod/'
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=${_CLUSTER_ZONE}'
     - 'CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}'
-  id: 'Apply constrainttemplate'
+  id: 'Apply deployments'
 
 # Step 6: Get all pods
 - name: 'gcr.io/cloud-builders/kubectl'
