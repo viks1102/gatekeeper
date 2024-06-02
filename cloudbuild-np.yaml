@@ -14,18 +14,17 @@ steps:
   args: ['cluster-info']
   id: 'Check Cluster Info'
 
-# Step 4: Dry run deployment manifest
+# Step 4: Dry run deployment manifests
 - name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '--dry-run=client', '-f', 'non-prod/deployment.yaml']
+  args: ['apply', '--dry-run=client', '-f', 'non-prod']
   id: 'Dry Run Deployment'
   waitFor: ['Clone GitHub Repository', 'Get GKE Credentials']
 
-
-# Step 5: Apply deployment manifest
+# Step 5: Apply deployment manifests
 - name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'non-prod/deployment.yaml']
-  id: 'Deploy Application'
-  waitFor: ['Dry Run Service']
+  args: ['apply', '-f', 'non-prod']
+  id: 'Deploy Applications'
+  waitFor: ['Dry Run Deployment']
 
 # Step 6: Get all pods
 - name: 'gcr.io/cloud-builders/kubectl'
